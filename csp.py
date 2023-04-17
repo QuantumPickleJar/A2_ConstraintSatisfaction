@@ -8,6 +8,18 @@ import random
 class CSP(Problem):
     """This class describes finite-domain Constraint Satisfaction Problems.
     A CSP is specified by the following inputs:
+
+          0 1 2 3 4 5
+        0 A B B B . .
+        1 A B . . . .
+        2 B B . . . .
+        3 B . . . . .
+        4 B . . . . .
+        5 B B . . . .
+
+        vars[] = "A", "B", "C"
+        domains {"A": ["0,0", "1,0"], "B": ["3,0", "2,0", ...]}
+
         vars        A list of variables; each is atomic (e.g. int or string).
         domains     A dict of {var:[possible_value, ...]} entries.
         neighbors   A dict of {var:[var,...]} that for each variable lists
