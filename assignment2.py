@@ -24,7 +24,7 @@ def star_constraint(A, a, B, b):
            ) < 1:
         return False
 
-    return
+    return True
 
 
 # imported from RushHour, TODO: will need revision
