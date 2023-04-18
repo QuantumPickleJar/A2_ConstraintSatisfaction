@@ -49,12 +49,11 @@ def readPuzzleFromFile(fileName):
 """
 Rules:
 Max 20 shapes per puzzle
-
 """
 class StarBattle(CSP):
-    '''
+    """
     Problem of type CSP
-    '''
+    """
     def __init__(self, fileName):
         """Initialize data structures for n stars"""
 
@@ -63,7 +62,6 @@ class StarBattle(CSP):
 
         shape_set = set()
 
-        # since the board shows ALL shapes, that can't be our vars:
         for row in board:
             # split out all the letters in the row
             # convert the row into a set to remove duplicates, cutting down our work
@@ -73,7 +71,22 @@ class StarBattle(CSP):
                     shape_set.add(char)
 
         vars = list(shape_set)
-        vars.sort()     # for readability, sort A-Z
+        vars.sort()     # for readability, sort A-
+
+        # we still have `board` that we can use
+        # TODO: use `board` to compute domains of all the shapes (vars)
+
+        '''
+        each var's domain will be all of the shape's cells
+        If the vars are shapes and domains are the shape's positions, how will 
+        we keep track of where the stars are?  
+        
+        Pretty sure we end up computing that elsewhere as part of the solution,
+        separately from vars, domains, and neighbors.  
+        '''
+
+        # TODO: use List Comprehension to build domains such that {vars, var_i[0-1]}
+        domains = [int(0) for x in vars]
 
         # since we aren't passing n as a param (like in NQueens), n = column width
         n = len(vars[0])
@@ -81,7 +94,6 @@ class StarBattle(CSP):
         CSP.__init__(self, range(n), UniversalDict(range(n)),
                      UniversalDict(range(n)), star_constraint)
 
-    # Since the variable is what will change, stars are the variables
     vars = []
 
     """Likewise, since domains represent all possible values for a variable,
