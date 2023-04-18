@@ -59,19 +59,27 @@ class StarBattle(CSP):
         """Initialize data structures for n stars"""
 
         # build the board state
-        problem = readPuzzleFromFile(fileName)
+        board = readPuzzleFromFile(fileName)
+
+        shape_set = set()
 
         # since the board shows ALL shapes, that can't be our vars:
-        vars = dict.fromkeys(problem)
+        for row in board:
+            # split out all the letters in the row
+            # convert the row into a set to remove duplicates, cutting down our work
+            converted_row = set(row)
+            if any(converted_row) not in shape_set:
+                for char in converted_row:
+                    shape_set.add(char)
 
-        # since we aren't passing n as a param, n = column width
-        # val in c → boolean, membership operator in (absence not in)
-        '''TODO: we want 'vars' to look like {'A','B',..., n} '''
+        vars = list(shape_set)
+        vars.sort()     # for readability, sort A-Z
+
+        # since we aren't passing n as a param (like in NQueens), n = column width
         n = len(vars[0])
+
         CSP.__init__(self, range(n), UniversalDict(range(n)),
                      UniversalDict(range(n)), star_constraint)
-
-        # read from the file
 
     # Since the variable is what will change, stars are the variables
     vars = []
@@ -82,7 +90,6 @@ class StarBattle(CSP):
 
     neighbors = {}
 
-    # TODO: find way to store shapes
 
 
 def main():
