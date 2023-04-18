@@ -27,18 +27,20 @@ def star_constraint(A, a, B, b):
     return True
 
 
-# imported from RushHour, TODO: will need revision
+# imported from RushHour
 def readPuzzleFromFile(fileName):
     infile = open(fileName, "r")
     grid = []
     for line in infile:
-        dataLine = (line[:-1])
+        # TODO: ensure the line is safe (only contains A-Z chars)
+        dataLine = line
         if dataLine[0] == '#':  # Comment line starts from column 0 with # in that column; skip these lines
             continue
         data = dataLine.split()
         columns = []
         for i in data:
-            columns.append(int(i))
+            for n in i:
+                columns.append(n)
         grid.append(columns)
     infile.close()
     return grid
@@ -55,15 +57,21 @@ class StarBattle(CSP):
     '''
     def __init__(self, fileName):
         """Initialize data structures for n stars"""
-        vars = readPuzzleFromFile(fileName)
-        # since we aren't passing n as a param, n = column width
 
+        # build the board state
+        problem = readPuzzleFromFile(fileName)
+
+        # since the board shows ALL shapes, that can't be our vars:
+        vars = dict.fromkeys(problem)
+
+        # since we aren't passing n as a param, n = column width
+        # val in c → boolean, membership operator in (absence not in)
+        '''TODO: we want 'vars' to look like {'A','B',..., n} '''
         n = len(vars[0])
         CSP.__init__(self, range(n), UniversalDict(range(n)),
                      UniversalDict(range(n)), star_constraint)
 
         # read from the file
-
 
     # Since the variable is what will change, stars are the variables
     vars = []
@@ -74,9 +82,13 @@ class StarBattle(CSP):
 
     neighbors = {}
 
+    # TODO: find way to store shapes
 
 
 def main():
     sb = StarBattle("puzzles/1.txt")
-    sb.display()
 
+    print(sb)
+
+if __name__ == "__main__":
+    main()
