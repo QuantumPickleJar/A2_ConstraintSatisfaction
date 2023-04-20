@@ -70,7 +70,7 @@ class StarBattle(CSP):
     '-' (0) or '*' (1) when marking a cell as having a star 
     '''
 
-    vars, board = []
+    vars, board = [], []
     domains = {}
     neighbors = {}
 
@@ -78,23 +78,26 @@ class StarBattle(CSP):
         """Initialize data structures for n stars"""
 
         # build the board state so we can set up {vars}
-        board = readPuzzleFromFile(fileName)
-        vars = []
-        for row in board:
-            vars.append(row)
+        self.board = readPuzzleFromFile(fileName)
+        self.vars = []
+        for row in self.board:
+            self.vars.append(row)
 
         # we still have `board` that we can use
+        domains = ['-' for x in self.vars]
 
-        domains = ['-' for x in vars]
+        # prepare neighbors
+        neighbors = {}
+        for row_index, row in enumerate(self.vars):
+            neighbors[row_index] = {}  #empty dict for this variable
 
-        neighbors = []
+            for col_index, cell in enumerate(row):
+                neighbors[row_index][col_index] = []  # create empty list
+
         neighbors = self.findNeighbors()
 
-        # since we aren't passing n as a param (like in NQueens), n = column width
-        # CRITICAL: We will NEVER have an unfilled cell on the board!!!
-        n = len(vars[0])
+        CSP.__init__(self, self.vars, domains, neighbors, star_constraint)
 
-        CSP.__init__(self, vars, domains, neighbors, star_constraint)
     def findNeighbors(self):
         '''
         consider all other row and column variables, and exclude the cells that already
@@ -102,18 +105,36 @@ class StarBattle(CSP):
         '''
         all_neighbors = []
         # loop through all the variables to build each set of neighbors
-        for row in vars:
 
-            # set the KEY in neighbors to be the ROW
-            # e.g if on row 1: neighbors[1] = [0, 2]
-            for col in self.board[row]:
-                # retrieve positions from board
-                current_neighbors = self.getAdjacentCells(row, self.board[row])
+        for row_index, row in enumerate(self.vars):  # for each ['A','B','B','B','C'] in the board:
+            # for each cell in this row...
+            for cell_index, cell_value in enumerate(row):
 
-                # add this row's neighbors to the master list
-                all_neighbors.extend(current_neighbors)
+                # if a cell contains part of a shape also belonging to a shape in the current 'row':
+                if (row_index != cell_index) and any(cell in cell_value for cell in row):
+                    all_neighbors.append(row_index)
+                #add the current row to the list of neighbors
 
-            return all_neighbors
+
+
+        '''
+        columns relating to A would be:
+        column_0 = [row[0] for row in self.board] # may be 'vars' not board?
+        newlist = [expression for item in iterable if condition == True]
+        '''
+
+
+        # the neighbors
+        # set the KEY in neighbors to be the ROW
+        # e.g if on row 1: neighbors[1] = [0, 2]
+        for col in self.board[row]:
+            # retrieve positions from board
+            current_neighbors = self.getAdjacentCells(row, self.board[row])
+
+            # add this row's neighbors to the master list
+            all_neighbors.extend(current_neighbors)
+
+        return all_neighbors
 
 
     def getAdjacentCells(self, row, col):
@@ -129,21 +150,8 @@ class StarBattle(CSP):
         lower_left_cell = {row - 1, col - 1}
         lower_right_cell = {row + 1, col - 1}
 
-        return { up_cell, down_cell, right_cell, left_cell,
-            upper_left_cell, upper_right_cell, lower_right_cell, lower_left_cell }
-
-        for x,y in self.board:
-            # neighbor by shape in row:
-
-            # what if the shape in this row spans up/down?
-
-            # neighbor by same row
-
-            # neighbor by same column
-            return adj_cells
-
-
-
+        return {up_cell, down_cell, right_cell, left_cell,
+                 upper_left_cell, upper_right_cell, lower_right_cell, lower_left_cell}
 
 def main():
     sb = StarBattle("puzzles/1.txt")
