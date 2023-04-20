@@ -80,23 +80,38 @@ class StarBattle(CSP):
         # build the board state so we can set up {vars}
         self.board = readPuzzleFromFile(fileName)
         self.vars = []
-        for row in self.board:
+        for row in range(len(self.board)):
             self.vars.append(row)
+        print(self.vars)
 
         # we still have `board` that we can use
-        domains = ['-' for x in self.vars]
+        domains = {}
+        for i in self.vars:
+            domains[i] = ['-' for x in self.vars]
+        print(domains)
 
         # prepare neighbors
         neighbors = {}
+        neighbors = {0:[1], 1:[0,2], 2:[1,3]}
+
+
+
+        for i in range(len(self.vars)):
+            for j in range(len(self.vars)):
+
+
+        for index, value in enumerate(self.vars):
+            print(index, value)
+
         for row_index, row in enumerate(self.vars):
             neighbors[row_index] = {}  #empty dict for this variable
-
             for col_index, cell in enumerate(row):
-                neighbors[row_index][col_index] = []  # create empty list
+                neighbors[row_index][col_index] = []  # right now, we make a list of cells rather than the row (index)
+                # itself
 
-        neighbors = self.findNeighbors()
+        # neighbors = self.findNeighbors()
 
-        CSP.__init__(self, self.vars, domains, neighbors, star_constraint)
+        # CSP.__init__(self, self.vars, domains, neighbors, star_constraint)
 
     def findNeighbors(self):
         '''
@@ -140,6 +155,8 @@ class StarBattle(CSP):
     def getAdjacentCells(self, row, col):
 
         # TODO: this can be cleaned up later
+        # It would probably be best for these to be made into a list rather than a set because we should be
+        # able to have duplicates
         up_cell = {row, col + 1}
         down_cell = {row, col - 1}
         left_cell = {row - 1, col}
