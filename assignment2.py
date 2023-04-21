@@ -29,7 +29,8 @@ def star_constraint(A, a, B, b):
             return False
 
     # check same shape
-
+    # This is the part that's stumping us quite a bit.  We can't figure out how we would
+    # check to see if they are in the same shape from this point in our code.
 
     return True
 
@@ -131,8 +132,6 @@ class StarBattle(CSP):
             else:
                 all_neighbors[i] = {i - 1, i + 1}
 
-
-
         # finds all shape values in a given row
         shape_domains = {}
         for row in range(len(self.vars)):
@@ -153,7 +152,7 @@ def printResult(dict):
 
 
 def main():
-    sb = StarBattle("puzzles/2.txt")
+    sb = StarBattle("puzzles/1.txt")
     print('Board = ' + str(sb.board))
     print('Variables = ' + str(sb.vars))
     print('Domain = ' + str(sb.domains))
