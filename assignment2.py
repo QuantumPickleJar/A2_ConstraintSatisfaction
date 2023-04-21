@@ -17,25 +17,39 @@ A function f(A, a, B, b) that returns true if neighbors
      as placing a star in the given variable would restrict the placement of stars in its neighbors.
 '''
 def star_constraint(A, a, B, b):
-    # reject same row
-    if A[0] == B[0]:
+    if A == B: # row check
+        return False
+    if a == b: # col check
         return False
 
-    # reject same column
-    if A[1] == B[1]:
-        return False
+    # check adjacent cells
+    adj = getAdjacentCells(A, a)
+    for x in adj:
+        if x == [B, b]:
+            return False
 
-    # TOOD: THIS NEEDS TO BE TESTED
-    # are A and B at least 1 cell apart?
-    # no sqrt fn: we just call a 0.5 exponent
-    # this is called the 'Euclidean distance'
-    if pow(0.5,
-           pow(2,(A[0] - B[0]) + pow(2,A[1] - B[1]))
-           ) < 1:
-        return False
+    # check same shape
+
 
     return True
 
+def getAdjacentCells(row, col):
+
+    # TODO: this can be cleaned up later
+    # It would probably be best for these to be made into a list rather than a set because we should be
+    # able to have duplicates
+    up_cell = [row, col + 1]
+    down_cell = [row, col - 1]
+    left_cell = [row - 1, col]
+    right_cell = [row + 1, col]
+
+    upper_left_cell = [row - 1, col + 1]
+    upper_right_cell = [row + 1, col + 1]
+    lower_left_cell = [row - 1, col - 1]
+    lower_right_cell = [row + 1, col - 1]
+
+    return [up_cell, down_cell, right_cell, left_cell,
+            upper_left_cell, upper_right_cell, lower_right_cell, lower_left_cell]
 
 # imported from RushHour
 def readPuzzleFromFile(fileName):
@@ -87,7 +101,7 @@ class StarBattle(CSP):
         # Set domain for
         self.domains = {}
         for i in self.vars:
-            self.domains[i] = ['-' for x in self.vars]
+            self.domains[i] = range(len(self.vars))
 
         # prepare neighbors
         self.neighbors = self.findNeighbors()
@@ -118,74 +132,19 @@ class StarBattle(CSP):
                 all_neighbors[i] = {i - 1, i + 1}
 
 
-        # checks for shape constraints in other rows
+
         # finds all shape values in a given row
         shape_domains = {}
         for row in range(len(self.vars)):
             shape_domains[row] = set(self.board[row])
-
+        # checks for shape constraints in other rows
         for i in range(len(self.vars)):
             for j in range(len(self.vars)):
                 if i != j:
                     if any(x in shape_domains[i] for x in shape_domains[j]):
                         all_neighbors[i].add(j)
 
-
-        # for row in range(len(self.vars)):
-        #     for col in range(len(self.vars)):
-        #
-        #
-        #
-        # for row_index, row in enumerate(self.vars):
-        #     # for each cell in this row...
-        #     print("Row Index: " + str(row_index))
-        #     print("Row: " + str(row))
-        #     for cell_index, cell_value in enumerate(self.domains[row_index]):
-        #
-        #         # if a cell contains part of a shape also belonging to a shape in the current 'row':
-        #         if (row_index != cell_index) and any(cell in cell_value for cell in row):
-        #             all_neighbors.append(row_index)
-        #         #add the current row to the list of neighbors
-        #
-        #
-        #
-        # '''
-        # columns relating to A would be:
-        # column_0 = [row[0] for row in self.board] # may be 'vars' not board?
-        # newlist = [expression for item in iterable if condition == True]
-        # '''
-        #
-        #
-        # # the neighbors
-        # # set the KEY in neighbors to be the ROW
-        # # e.g if on row 1: neighbors[1] = [0, 2]
-        # for col in self.board[row]:
-        #     # retrieve positions from board
-        #     current_neighbors = self.getAdjacentCells(row, self.board[row])
-        #
-        #     # add this row's neighbors to the master list
-        #     all_neighbors.extend(current_neighbors)
-
         return all_neighbors
-
-
-    def getAdjacentCells(self, row, col):
-
-        # TODO: this can be cleaned up later
-        # It would probably be best for these to be made into a list rather than a set because we should be
-        # able to have duplicates
-        up_cell = {row, col + 1}
-        down_cell = {row, col - 1}
-        left_cell = {row - 1, col}
-        right_cell = {row + 1, col}
-
-        upper_left_cell = {row - 1, col + 1}
-        upper_right_cell = {row + 1, col + 1}
-        lower_left_cell = {row - 1, col - 1}
-        lower_right_cell = {row + 1, col - 1}
-
-        return {up_cell, down_cell, right_cell, left_cell,
-                 upper_left_cell, upper_right_cell, lower_right_cell, lower_left_cell}
 
 def main():
     sb = StarBattle("puzzles/2.txt")
@@ -193,6 +152,11 @@ def main():
     print('Variables = ' + str(sb.vars))
     print('Domain = ' + str(sb.domains))
     print('Neighbors = ' + str(sb.neighbors))
+
+    result = backtracking_search(sb, select_unassigned_variable=mrv, order_domain_values=lcv,
+                                 inference=no_inference)
+    print(result)
+
 
 if __name__ == "__main__":
     main()

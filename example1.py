@@ -121,12 +121,12 @@ def AC3Example_constraints(A, a, B, b):
 start = timer()
 
 #Test Class example
-problem = CSP(vars, domains, neighbors, AC3Example_constraints)
-result = backtracking_search(problem,select_unassigned_variable=mrv,order_domain_values=lcv,inference=no_inference)
+# problem = CSP(vars, domains, neighbors, AC3Example_constraints)
+# result = backtracking_search(problem,select_unassigned_variable=mrv,order_domain_values=lcv,inference=no_inference)
 
 #Test map coloring problems
-#problem = NQueen(16)
-#result = backtracking_search(problem,select_unassigned_variable=mrv,order_domain_values=lcv,inference=forward_checking) #no_inference forward_checking mac
+problem = NQueen(4)
+result = backtracking_search(problem,select_unassigned_variable=mrv,order_domain_values=lcv,inference=forward_checking) #no_inference forward_checking mac
 
 #Test map coloring problems
 #problem = usa  #usa france australia
