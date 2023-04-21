@@ -19,18 +19,17 @@ A function f(A, a, B, b) that returns true if neighbors
 def star_constraint(A, a, B, b):
     if A == B: # row check
         return False
-    if a == b: # col check
+    if a[0] == b[0]: # col check
         return False
 
     # check adjacent cells
-    adj = getAdjacentCells(A, a)
+    adj = getAdjacentCells(A, a[0])
     for x in adj:
-        if x == [B, b]:
+        if x == [B, b[0]]:
             return False
-
-    # check same shape
-    # This is the part that's stumping us quite a bit.  We can't figure out how we would
-    # check to see if they are in the same shape from this point in our code.
+    # check if same shape
+    if a[1] == b[1]:
+        return False
 
     return True
 
@@ -72,19 +71,7 @@ def readPuzzleFromFile(fileName):
 
 
 class StarBattle(CSP):
-    """
-    Problem of type CSP
-    """
-
-    '''
-    From professor:
-    'if a row is your variable, then every element of that domain for that variable 
-    should specify the row completely; I.e., for a 5 puzzle, something like [-,-,-,-,*]'
-    
-    this means that instead of removing a value from a domain, we'd mark the entry with 
-    '-' (0) or '*' (1) when marking a cell as having a star 
-    '''
-
+    # Creates necessary vars
     vars, board = [], []
     domains = {}
     neighbors = {}
@@ -99,60 +86,41 @@ class StarBattle(CSP):
             self.vars.append(row)
         print(self.vars)
 
-        # Set domain for
-        self.domains = {}
-        for i in self.vars:
-            self.domains[i] = range(len(self.vars))
+        # Set domain for each var
+        self.domains = self.findDomains()
 
         # prepare neighbors
         self.neighbors = self.findNeighbors()
 
-        # for row_index, row in enumerate(self.vars):
-        #     neighbors[row_index] = {}  #empty dict for this variable
-        #     for col_index, cell in enumerate(row):
-        #         neighbors[row_index][col_index] = []  # right now, we make a list of cells rather than the row (index)
-        #         # itself
-
-        # neighbors = self.findNeighbors()
-
         CSP.__init__(self, self.vars, self.domains, self.neighbors, star_constraint)
 
+    def findDomains(self):
+        domains = {}
+        for i in range(len(self.vars)):
+            domains[i] = []
+            for j in range(len(self.vars)):
+                domains[i].append(([j, self.board[i][j]]))
+        return domains
     def findNeighbors(self):
         '''
-        consider all other row and column variables, and exclude the cells that already
-        have stars placed in them in those variables from the domain of each row variable.
+        each variable is constrained by every other variable as a star can be in neither the same row nor col
         '''
         all_neighbors = {}
-        # loop through all the variables to build each set of neighbors
         for i in range(len(self.vars)):
-            if i == 0:
-                all_neighbors[0] = {1}
-            elif i == len(self.vars) - 1:
-                all_neighbors[len(self.vars) - 1] = {len(self.vars) - 2}
-            else:
-                all_neighbors[i] = {i - 1, i + 1}
-
-        # finds all shape values in a given row
-        shape_domains = {}
-        for row in range(len(self.vars)):
-            shape_domains[row] = set(self.board[row])
-        # checks for shape constraints in other rows
-        for i in range(len(self.vars)):
-            for j in range(len(self.vars)):
-                if i != j:
-                    if any(x in shape_domains[i] for x in shape_domains[j]):
-                        all_neighbors[i].add(j)
+            all_neighbors[i] = list(range(len(self.vars)))
+            all_neighbors[i].remove(i)
 
         return all_neighbors
 def printResult(dict):
+
     for x in range(len(dict)):
         n = ['-' for x in range(len(dict))]
-        n[dict[x]] = '*'
+        n[dict[x][0]] = "*"
         print(n)
 
 
 def main():
-    sb = StarBattle("puzzles/1.txt")
+    sb = StarBattle("puzzles/4.txt")
     print('Board = ' + str(sb.board))
     print('Variables = ' + str(sb.vars))
     print('Domain = ' + str(sb.domains))
