@@ -145,6 +145,12 @@ class StarBattle(CSP):
                         all_neighbors[i].add(j)
 
         return all_neighbors
+def printResult(dict):
+    for x in range(len(dict)):
+        n = ['-' for x in range(len(dict))]
+        n[dict[x]] = '*'
+        print(n)
+
 
 def main():
     sb = StarBattle("puzzles/2.txt")
@@ -156,7 +162,7 @@ def main():
     result = backtracking_search(sb, select_unassigned_variable=mrv, order_domain_values=lcv,
                                  inference=no_inference)
     print(result)
-
+    printResult(result)
 
 if __name__ == "__main__":
     main()
