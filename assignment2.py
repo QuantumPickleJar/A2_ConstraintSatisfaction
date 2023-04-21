@@ -84,70 +84,87 @@ class StarBattle(CSP):
             self.vars.append(row)
         print(self.vars)
 
-        # we still have `board` that we can use
-        domains = {}
+        # Set domain for
+        self.domains = {}
         for i in self.vars:
-            domains[i] = ['-' for x in self.vars]
-        print(domains)
+            self.domains[i] = ['-' for x in self.vars]
 
         # prepare neighbors
-        neighbors = {}
-        neighbors = {0:[1], 1:[0,2], 2:[1,3]}
+        self.neighbors = self.findNeighbors()
 
-
-
-        for i in range(len(self.vars)):
-            for j in range(len(self.vars)):
-
-
-        for index, value in enumerate(self.vars):
-            print(index, value)
-
-        for row_index, row in enumerate(self.vars):
-            neighbors[row_index] = {}  #empty dict for this variable
-            for col_index, cell in enumerate(row):
-                neighbors[row_index][col_index] = []  # right now, we make a list of cells rather than the row (index)
-                # itself
+        # for row_index, row in enumerate(self.vars):
+        #     neighbors[row_index] = {}  #empty dict for this variable
+        #     for col_index, cell in enumerate(row):
+        #         neighbors[row_index][col_index] = []  # right now, we make a list of cells rather than the row (index)
+        #         # itself
 
         # neighbors = self.findNeighbors()
 
-        # CSP.__init__(self, self.vars, domains, neighbors, star_constraint)
+        CSP.__init__(self, self.vars, self.domains, self.neighbors, star_constraint)
 
     def findNeighbors(self):
         '''
         consider all other row and column variables, and exclude the cells that already
         have stars placed in them in those variables from the domain of each row variable.
         '''
-        all_neighbors = []
+        all_neighbors = {}
         # loop through all the variables to build each set of neighbors
-
-        for row_index, row in enumerate(self.vars):  # for each ['A','B','B','B','C'] in the board:
-            # for each cell in this row...
-            for cell_index, cell_value in enumerate(row):
-
-                # if a cell contains part of a shape also belonging to a shape in the current 'row':
-                if (row_index != cell_index) and any(cell in cell_value for cell in row):
-                    all_neighbors.append(row_index)
-                #add the current row to the list of neighbors
+        for i in range(len(self.vars)):
+            if i == 0:
+                all_neighbors[0] = {1}
+            elif i == len(self.vars) - 1:
+                all_neighbors[len(self.vars) - 1] = {len(self.vars) - 2}
+            else:
+                all_neighbors[i] = {i - 1, i + 1}
 
 
+        # checks for shape constraints in other rows
+        # finds all shape values in a given row
+        shape_domains = {}
+        for row in range(len(self.vars)):
+            shape_domains[row] = set(self.board[row])
 
-        '''
-        columns relating to A would be:
-        column_0 = [row[0] for row in self.board] # may be 'vars' not board?
-        newlist = [expression for item in iterable if condition == True]
-        '''
+        for i in range(len(self.vars)):
+            for j in range(len(self.vars)):
+                if i != j:
+                    if any(x in shape_domains[i] for x in shape_domains[j]):
+                        all_neighbors[i].add(j)
 
 
-        # the neighbors
-        # set the KEY in neighbors to be the ROW
-        # e.g if on row 1: neighbors[1] = [0, 2]
-        for col in self.board[row]:
-            # retrieve positions from board
-            current_neighbors = self.getAdjacentCells(row, self.board[row])
-
-            # add this row's neighbors to the master list
-            all_neighbors.extend(current_neighbors)
+        # for row in range(len(self.vars)):
+        #     for col in range(len(self.vars)):
+        #
+        #
+        #
+        # for row_index, row in enumerate(self.vars):
+        #     # for each cell in this row...
+        #     print("Row Index: " + str(row_index))
+        #     print("Row: " + str(row))
+        #     for cell_index, cell_value in enumerate(self.domains[row_index]):
+        #
+        #         # if a cell contains part of a shape also belonging to a shape in the current 'row':
+        #         if (row_index != cell_index) and any(cell in cell_value for cell in row):
+        #             all_neighbors.append(row_index)
+        #         #add the current row to the list of neighbors
+        #
+        #
+        #
+        # '''
+        # columns relating to A would be:
+        # column_0 = [row[0] for row in self.board] # may be 'vars' not board?
+        # newlist = [expression for item in iterable if condition == True]
+        # '''
+        #
+        #
+        # # the neighbors
+        # # set the KEY in neighbors to be the ROW
+        # # e.g if on row 1: neighbors[1] = [0, 2]
+        # for col in self.board[row]:
+        #     # retrieve positions from board
+        #     current_neighbors = self.getAdjacentCells(row, self.board[row])
+        #
+        #     # add this row's neighbors to the master list
+        #     all_neighbors.extend(current_neighbors)
 
         return all_neighbors
 
@@ -171,9 +188,11 @@ class StarBattle(CSP):
                  upper_left_cell, upper_right_cell, lower_right_cell, lower_left_cell}
 
 def main():
-    sb = StarBattle("puzzles/1.txt")
-
-    print(sb)
+    sb = StarBattle("puzzles/2.txt")
+    print('Board = ' + str(sb.board))
+    print('Variables = ' + str(sb.vars))
+    print('Domain = ' + str(sb.domains))
+    print('Neighbors = ' + str(sb.neighbors))
 
 if __name__ == "__main__":
     main()
