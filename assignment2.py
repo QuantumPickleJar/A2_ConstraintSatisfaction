@@ -1,13 +1,5 @@
-from csp import CSP, UniversalDict
-
-"""
-Returns True if constraint pass
-A = cell1 (string)
-B = cell2 (string) 
-a = cell1[domain] (where domain = {1} or {0}
-b = cell2[domain]
-"""
-
+from csp import *
+from timeit import default_timer as timer
 
 '''
 A function f(A, a, B, b) that returns true if neighbors
@@ -117,19 +109,31 @@ def printResult(dict):
         n = ['-' for x in range(len(dict))]
         n[dict[x][0]] = "*"
         print(n)
-
+def run_backtracking(sb,select_unassigned_variable,order_domain_values,inference):
+    start = timer()
+    result = backtracking_search(sb, select_unassigned_variable, order_domain_values, inference)
+    end = timer()
+    printResult(result)
+    print(result)
+    print(f"Time Elapsed: {end - start}")
 
 def main():
-    sb = StarBattle("puzzles/4.txt")
+    sb = StarBattle("puzzles/5.txt")
     print('Board = ' + str(sb.board))
     print('Variables = ' + str(sb.vars))
     print('Domain = ' + str(sb.domains))
     print('Neighbors = ' + str(sb.neighbors))
 
-    result = backtracking_search(sb, select_unassigned_variable=mrv, order_domain_values=lcv,
+    # alter which line is uncommented to compare search times for different search parameters
+    '''
+    run_backtracking(sb, select_unassigned_variable=first_unassigned_variable, order_domain_values=unordered_domain_values,
                                  inference=no_inference)
-    print(result)
-    printResult(result)
-
+    '''
+    '''
+    '''
+    run_backtracking(sb, select_unassigned_variable=mrv, order_domain_values=lcv,
+                                 inference=forward_checking)
+    run_backtracking(sb, select_unassigned_variable=mrv, order_domain_values=lcv,
+                                 inference=mac)
 if __name__ == "__main__":
     main()
